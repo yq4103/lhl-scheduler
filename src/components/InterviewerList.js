@@ -13,11 +13,10 @@ const InterviewerList = (props) => {
           return (
             <InterviewerListItem
               key={id}
-              id={id}
               name={name}
               avatar={avatar}
-              selected={id === props.interviewer}
-              setInterviewer={props.setInterviewer}
+              selected={id === props.value}
+              setInterviewer={() => props.onChange(id)}
             />
           );
         })}
