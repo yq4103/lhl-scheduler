@@ -5,12 +5,18 @@ import Show from "./Show";
 
 import "components/Appointment/styles.scss";
 
-const Appointment = () => {
+const Appointment = (props) => {
   return (
     <article className="appointment">
-      {/* <Header />
-      <Empty />
-      <Show /> */}
+      <Header time={props.time} />
+      {props.interview ? (
+        <Show
+          student={props.interview.student}
+          interviewer={props.interview.interviewer}
+        />
+      ) : (
+        <Empty />
+      )}
     </article>
   );
 };
