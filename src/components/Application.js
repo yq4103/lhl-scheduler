@@ -3,7 +3,11 @@ import React, { useState, useEffect } from "react";
 import DayList from "./DayList";
 import Appointment from "components/Appointment";
 import "components/Application.scss";
-import { getAppointmentsForDay, getInterview } from "helpers/selectors";
+import {
+  getAppointmentsForDay,
+  getInterview,
+  getInterviewersForDay,
+} from "helpers/selectors";
 
 // const appointments = {
 //   1: {
@@ -70,6 +74,8 @@ export default function Application(props) {
 
   const dailyAppointments = getAppointmentsForDay(state, state.day);
 
+  const interviewers = getInterviewersForDay(state, state.day);
+
   const setDay = (day) => setState({ ...state, day });
 
   const schedule = dailyAppointments.map((appointment) => {
@@ -80,6 +86,7 @@ export default function Application(props) {
         id={appointment.id}
         time={appointment.time}
         interview={interview}
+        interviewers={interviewers}
       />
     );
   });
