@@ -87,9 +87,110 @@ export default function Application(props) {
         time={appointment.time}
         interview={interview}
         interviewers={interviewers}
+        bookInterview={bookInterview}
+        cancelInterview={cancelInterview}
       />
     );
   });
+
+  function updateSpots(days, apptId, appointments) {
+    const findDay = (day) => day.appointments.includes(apptId);
+    const singleDay = days.find(findDay);
+    let nullAppointments = 0;
+    singleDay.appointments.forEach((id) => {
+      if (appointments[id].interview === null) {
+        nullAppointments++;
+      }
+    });
+    singleDay.spots = nullAppointments;
+    return singleDay;
+  }
+
+  function bookInterview(id, interview) {
+    const appointmentToSave = {
+      ...state.appointments[id],
+      interview: { ...interview },
+    };
+
+    return new Promise((resolve, reject) => {
+      //taking the current state, getting all the appointments, and adding the appointment we just saved to the database, updating local state to match the server
+      //take the appointments object, saving the interview to the current state, updating the state of appointments
+      axios
+        .put(`/api/appointments/${id}`, appointmentToSave)
+
+        .then(() => {
+          const appointments = {
+            ...state.appointments,
+            [id]: appointmentToSave,
+          };
+
+          setState({
+            ...state,
+            appointments,
+          });
+
+          const newDay = updateSpots(state.days, id, appointments);
+
+          const daysArray = [...state.days];
+
+          daysArray[newDay.id - 1] = newDay;
+
+          setState((prev) => ({
+            ...prev,
+            days: daysArray,
+          }));
+
+          resolve("success");
+        })
+
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  function cancelInterview(id) {
+    const appointmentToCancel = {
+      ...state.appointments[id],
+      interview: null,
+    };
+
+    return new Promise((resolve, reject) => {
+      //taking the current state, getting all the appointments, and removing the appointment from the database
+      //take the appointments, saving the interview to the current state, updating the state of appointments
+      axios
+        .delete(`/api/appointments/${id}`, appointmentToCancel)
+
+        .then(() => {
+          const appointments = {
+            ...state.appointments,
+            [id]: appointmentToCancel,
+          };
+
+          setState({
+            ...state,
+            appointments,
+          });
+
+          const newDay = updateSpots(state.days, id, appointments);
+
+          const daysArray = [...state.days];
+
+          daysArray[newDay.id - 1] = newDay;
+
+          setState((prev) => ({
+            ...prev,
+            days: daysArray,
+          }));
+
+          resolve("success");
+        })
+
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
 
   return (
     <main className="layout">
